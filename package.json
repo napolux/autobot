@@ -1,0 +1,17 @@
+{
+  "name": "autobot",
+  "version": "0.0.1",
+  "description": "Autobot is a Facebook Messenger Bot for automobile.it",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "Francesco Napoletano",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "request": "^2.72.0"
+  }
+}
