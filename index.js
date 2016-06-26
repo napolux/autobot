@@ -28,7 +28,7 @@ app.get('/webhook', function (req, res) {
 // handler receiving messages
 app.post('/webhook', function (req, res) {
     var events = req.body.entry[0].messaging;
-    for (i = 0; i < events.length; i++) {
+    for (var i = 0; i < events.length; i++) {
         var event = events[i];
         if (event.message && event.message.text) {
             if (!kittenMessage(event.sender.id, event.message.text)) {
@@ -66,13 +66,13 @@ function kittenMessage(recipientId, text) {
     text = text || "";
 
     // min 100x100 max 600x600 pixels
-    randWidth  = _.random(100,600); 
-    randHeight = _.random(100,600);
+    var randWidth  = _.random(100,600); 
+    var randHeight = _.random(100,600);
     
     if (text === 'kitten') {            
         var imageUrl = "https://placekitten.com/" + Number(randWidth) + "/" + Number(randHeight);
         
-        message = {
+        var message = {
             "attachment": {
                 "type": "template",
                 "payload": {
