@@ -1,3 +1,5 @@
+'use strict';
+
 // requires...
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -16,7 +18,7 @@ app.get('/', function (req, res) {
 
 // Facebook Webhook
 app.get('/webhook', function (req, res) {
-    if (req.query['hub.verify_token'] === 'verify_my_autobot_if_you_are_not_a_decepticon') {
+    if (req.query['hub.verify_token'] === process.env.VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
     } else {
         res.send('Invalid verify token');
@@ -58,7 +60,7 @@ function sendMessage(recipientId, message) {
     });
 };
 
-// send rich message with kitten
+// send rich message with a random kitten
 function kittenMessage(recipientId, text) {
     
     text = text || "";
