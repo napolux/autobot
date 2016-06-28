@@ -16,16 +16,16 @@ app.listen((process.env.PORT || 3000));
 // Setup mongoose
 mongoose.connect("mongodb://" + process.env.MONGO_USER + ":" + process.env.MONGO_PASS + "@ds019624.mlab.com:19624/autobot");
 
-var Cat = mongoose.model('Cat', { name: String });
+// var Cat = mongoose.model('Cat', { name: String });
 
-var kitty = new Cat({ name: 'Zildjian' });
-kitty.save(function (err) {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log('meow');
-  }
-});
+// var kitty = new Cat({ name: 'Zildjian' });
+// kitty.save(function (err) {
+//   if (err) {
+//     console.log(err);
+//   } else {
+//     console.log('meow');
+//   }
+// });
 
 // Server frontpage
 app.get("/", function (req, res) {
