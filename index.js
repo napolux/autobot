@@ -31,17 +31,23 @@ app.post('/webhook', function (req, res) {
     for (var i = 0; i < events.length; i++) {
         var event = events[i];
         if (event.message && event.message.text) {
-            if (!kittenMessage(event.sender.id, event.message.text)) {
-                sendMessage(event.sender.id, {text: "you said: " + event.message.text});
+            // We have a message, let's see what we can do with it
+            if (!detectMessage(event.sender.id, event.message) {
+                sendMessage(event.sender.id, {text: "I'm sorry, I didn't get what you said: did you really mean \"" + event.message.text + "?"});
             }
         } else if (event.postback) {
+            // This is a way to log stuff...
             console.log("Postback received: " + JSON.stringify(event.postback));
         }
     }
     res.sendStatus(200);
 });
 
-// generic function sending messages
+function detectMessage(recipientId, message) {
+    return (kittenMessage(recipientId, message.text));
+}
+
+// generic function that sends a message
 function sendMessage(recipientId, message) {
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
@@ -65,11 +71,11 @@ function kittenMessage(recipientId, text) {
     
     text = text || "";
 
-    // min 100x100 max 600x600 pixels
-    var randWidth  = _.random(100,600); 
-    var randHeight = _.random(100,600);
-    
     if (text.toLowerCase().trim() === 'kitten') {            
+
+        // min 100x100 max 600x600 pixels
+        var randWidth  = _.random(100,600); 
+        var randHeight = _.random(100,600);
         var imageUrl = "https://placekitten.com/" + Number(randWidth) + "/" + Number(randHeight);
         
         var message = {
