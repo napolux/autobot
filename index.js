@@ -78,13 +78,13 @@ function kittenMessage(recipientId, text) {
                 "payload": {
                     "template_type": "generic",
                     "elements": [{
-                        "title": "Kitten",
-                        "subtitle": "Cute kitten picture",
+                        "title": "Here's a kitten!",
+                        "subtitle": "Enjoy this cute kitten picture!",
                         "image_url": imageUrl ,
                         "buttons": [{
                             "type": "web_url",
                             "url": imageUrl,
-                            "title": "Show kitten"
+                            "title": "Open kitten link"
                             }, {
                             "type": "postback",
                             "title": "I like this",
