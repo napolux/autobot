@@ -69,7 +69,7 @@ function kittenMessage(recipientId, text) {
     var randWidth  = _.random(100,600); 
     var randHeight = _.random(100,600);
     
-    if (text.toLower.toLowerCase().trim() === 'kitten') {            
+    if (text.toLowerCase().trim() === 'kitten') {            
         var imageUrl = "https://placekitten.com/" + Number(randWidth) + "/" + Number(randHeight);
         
         var message = {
