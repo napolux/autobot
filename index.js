@@ -4,6 +4,7 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var request = require("request");
+var mongoose = require('mongoose');
 var _ = require("underscore");
 
 var app = express();
@@ -11,6 +12,20 @@ var app = express();
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.listen((process.env.PORT || 3000));
+
+// Setup mongoose
+mongoose.connect("mongodb://" + process.env.MONGO_USER + ":" + process.env.MONGO_PASS + "@ds019624.mlab.com:19624/autobot");
+
+var Cat = mongoose.model('Cat', { name: String });
+
+var kitty = new Cat({ name: 'Zildjian' });
+kitty.save(function (err) {
+  if (err) {
+    console.log(err);
+  } else {
+    console.log('meow');
+  }
+});
 
 // Server frontpage
 app.get("/", function (req, res) {
