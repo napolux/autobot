@@ -13,7 +13,7 @@ app.listen((process.env.PORT || 3000));
 
 // Server frontpage
 app.get('/', function (req, res) {
-    res.send('This is AutoBot Server');
+    res.send('This is the AutoBot Server. Interact with AutoBot on Facebook!');
 });
 
 // Facebook Webhook
@@ -69,7 +69,7 @@ function kittenMessage(recipientId, text) {
     var randWidth  = _.random(100,600); 
     var randHeight = _.random(100,600);
     
-    if (text === 'kitten') {            
+    if (text.toLower.toLowerCase().trim() === 'kitten') {            
         var imageUrl = "https://placekitten.com/" + Number(randWidth) + "/" + Number(randHeight);
         
         var message = {
