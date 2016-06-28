@@ -1,10 +1,11 @@
-'use strict';
+"use strict";
 
 // requires...
-var express = require('express');
-var bodyParser = require('body-parser');
-var request = require('request');
-var _ = require('underscore');
+var express = require("express");
+var bodyParser = require("body-parser");
+var request = require("request");
+var _ = require("underscore");
+
 var app = express();
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -12,12 +13,12 @@ app.use(bodyParser.json());
 app.listen((process.env.PORT || 3000));
 
 // Server frontpage
-app.get('/', function (req, res) {
+app.get("/", function (req, res) {
     res.send('This is the AutoBot Server. Interact with AutoBot on Facebook!');
 });
 
 // Facebook Webhook
-app.get('/webhook', function (req, res) {
+app.get("/webhook", function (req, res) {
     if (req.query['hub.verify_token'] === process.env.VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
     } else {
@@ -26,14 +27,14 @@ app.get('/webhook', function (req, res) {
 });
 
 // handler receiving messages
-app.post('/webhook', function (req, res) {
+app.post("/webhook", function (req, res) {
     var events = req.body.entry[0].messaging;
     for (var i = 0; i < events.length; i++) {
         var event = events[i];
         if (event.message && event.message.text) {
             // We have a message, let's see what we can do with it
-            if (!detectMessage(event.sender.id, event.message) {
-                sendMessage(event.sender.id, {text: "I'm sorry, I didn't get what you said: did you really mean \"" + event.message.text + "?"});
+            if (!detectMessage(event.sender.id, event.message)) {
+                sendMessage(event.sender.id, {text: "I'm sorry, I didn't get what you said: did you really mean \"" + event.message.text + "\"?"});
             }
         } else if (event.postback) {
             // This is a way to log stuff...
