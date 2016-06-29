@@ -1,7 +1,7 @@
 {
-  "name": "messenger-get-started",
-  "version": "1.0.0",
-  "description": "Get started example for Messenger Platform",
+  "name": "autobot",
+  "version": "0.0.1",
+  "description": "Hello, I'm autobot!",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -10,9 +10,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://source.developers.google.com/p/messenger-get-started/r/default"
+    "url": "https://github.com/napolux/autobot"
   },
-  "author": "Facebook",
+  "author": "Francesco Napoletano",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.15.2",
@@ -20,8 +20,5 @@
     "express": "^4.14.0",
     "request": "^2.72.0",
     "underscore": "^1.8.3"
-  },
-  "engines": {
-    "node": "~4.1.2"
   }
 }
