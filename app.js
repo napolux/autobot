@@ -17,6 +17,7 @@ const
   express = require('express'),
   https = require('https'),  
   request = require('request');
+  _ = require('underscore');
 
 var app = express();
 
@@ -221,6 +222,10 @@ function receivedMessage(event) {
         sendReceiptMessage(senderID);
         break;
 
+      case 'kitten':
+        sendKittenMessage(senderID);
+        break;
+
       default:
         sendTextMessage(senderID, messageText);
     }
@@ -348,6 +353,48 @@ function sendButtonMessage(recipientId) {
       }
     }
   };  
+
+  callSendAPI(messageData);
+}
+
+/*
+ * Send a kitten!!! :)
+ *
+ */
+function sendKittenMessage(recipientId) {
+
+  var randomWidth = _.random(100,600);
+  var randomHeight = _.random(100,600);
+  var imageUrl = "https://placekitten.com/" + Number(randomWidth) + "/" + Number(randomHeight);
+
+
+  var messageData = {
+    recipient: {
+      id: recipientId
+    },
+    message: {
+      attachment: {
+        type: "template",
+        payload: {
+          template_type: "generic",
+          elements: [{
+            title: "Kitten",
+            subtitle: "Here's a cute kitten",
+            image_url: imageUrl,
+            buttons: [{
+              type: "web_url",
+              url: imageUrl,
+              title: "Open kitten"
+            }, {
+              type: "postback",
+              title: "Call Postback",
+              payload: "Payload for first bubble",
+            }],
+          }]
+        }
+      }
+    }
+  };
 
   callSendAPI(messageData);
 }
