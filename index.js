@@ -11,6 +11,7 @@ var app = express();
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
+app.use(express.static('public'));
 app.listen((process.env.PORT || 3000));
 
 // Setup mongoose
