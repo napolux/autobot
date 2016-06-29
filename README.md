@@ -1,2 +1,2 @@
 # autobot
-Experiments with Node.js and Facebook Messenger platform
+Experiments with Node.js and Facebook Messenger platform.
