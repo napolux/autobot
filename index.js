@@ -59,6 +59,7 @@ app.post("/webhook", function (req, res) {
     res.sendStatus(200);
 });
 
+// message type detection
 function detectMessage(recipientId, message) {
     return (kittenMessage(recipientId, message.text));
 }
