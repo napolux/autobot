@@ -21,8 +21,6 @@ app.set('port', process.env.PORT || 5000);
 app.use(bodyParser.json({ verify: verifyRequestSignature }));
 app.use(express.static('public'));
 
-
-// moongoose
 // Setup mongoose
 mongoose.connect("mongodb://" + process.env.MONGO_USER + ":" + process.env.MONGO_PASS + "@ds019624.mlab.com:19624/autobot");
 
