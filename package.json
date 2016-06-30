@@ -18,7 +18,7 @@
     "body-parser": "^1.15.2",
     "config": "^1.20.4",
     "express": "^4.14.0",
-    "moongoose": "0.0.4",
+    "mongoose": "^4.5.2",
     "request": "^2.72.0",
     "underscore": "^1.8.3"
   }
