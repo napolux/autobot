@@ -1,11 +1,6 @@
-/*
- * Copyright 2016-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
+/**
+ * @author: Francesco Napoletano <napolux@gmail.com>
+ **/
 
 /* jshint node: true, devel: true */
 'use strict';
@@ -17,6 +12,7 @@ const
   express = require('express'),
   https = require('https'),  
   request = require('request'),
+  mongoose = require('mongoose'),
   _ = require('underscore');
 
 var app = express();
@@ -24,6 +20,22 @@ var app = express();
 app.set('port', process.env.PORT || 5000);
 app.use(bodyParser.json({ verify: verifyRequestSignature }));
 app.use(express.static('public'));
+
+
+// moongoose
+// Setup mongoose
+mongoose.connect("mongodb://" + process.env.MONGO_USER + ":" + process.env.MONGO_PASS + "@ds019624.mlab.com:19624/autobot");
+
+// var Cat = mongoose.model('Cat', { name: String });
+
+// var kitty = new Cat({ name: 'Zildjian' });
+// kitty.save(function (err) {
+//   if (err) {
+//     console.log(err);
+//   } else {
+//     console.log('meow');
+//   }
+// });
 
 /*
  * Be sure to setup your config values before running this code. You can 
@@ -197,7 +209,7 @@ function receivedMessage(event) {
   var messageId = message.mid;
 
   // You may get a text or attachment but not both
-  var messageText = message.text;
+  var messageText = message.text.toLowerCase().trim();
   var messageAttachments = message.attachments;
 
   if (messageText) {
