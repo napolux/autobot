@@ -1,5 +1,5 @@
 # autobot
-Experiments with **Node.js and **Facebook Messenger Platform**.
+Experiments with **Node.js** and **Facebook Messenger Platform**.
 
 Legal stuff
 -----------
