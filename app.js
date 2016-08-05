@@ -22,20 +22,6 @@ app.use(bodyParser.json({
 }));
 app.use(express.static('public'));
 
-// Setup mongoose
-mongoose.connect("mongodb://" + process.env.MONGO_USER + ":" + process.env.MONGO_PASS + "@ds019624.mlab.com:19624/autobot");
-
-// var Cat = mongoose.model('Cat', { name: String });
-
-// var kitty = new Cat({ name: 'Zildjian' });
-// kitty.save(function (err) {
-//   if (err) {
-//     console.log(err);
-//   } else {
-//     console.log('meow');
-//   }
-// });
-
 /*
  * Be sure to setup your config values before running this code. You can 
  * set them using environment variables or modifying the config file in /config.
@@ -77,7 +63,6 @@ app.get('/webhook', function(req, res) {
         res.sendStatus(403);
     }
 });
-
 
 /*
  * All callbacks for Messenger are POST-ed. They will be sent to the same
@@ -179,7 +164,6 @@ function receivedAuthentication(event) {
     // to let them know it was successful.
     sendTextMessage(senderID, "Authentication successful");
 }
-
 
 /*
  * Message Event
