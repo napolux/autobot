@@ -426,7 +426,7 @@ const actions = {
     return new Promise(function(resolve, reject) {
       var greetings = firstEntityValue(entities, 'greetings');
       if (greetings) {
-        context.greetings = "Hello fellow user! Can I help you?";
+        context.greetings = "Hello fellow user! Can I help you? Please remember: I'm a bot";
       }
       return resolve(context);
     });
