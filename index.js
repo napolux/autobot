@@ -417,7 +417,7 @@ function sendImageMessage(recipientId) {
       attachment: {
         type: "image",
         payload: {
-          url: SERVER_URL + "/assets/rift.png"
+          url: "https://g.twimg.com/blog/blog/image/Cat-party.gif"
         }
       }
     }
