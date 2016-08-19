@@ -1,4 +1,4 @@
-# autobot
+# napobot
 Experiments with **Node.js** and **Facebook Messenger Platform**.
 
 Legal stuff
