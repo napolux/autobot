@@ -22,8 +22,6 @@ const
 
 var app = express();
 
-var helloCount = 0;
-
 app.set('port', process.env.PORT || 5000);
 app.use(bodyParser.json({
   verify: verifyRequestSignature
@@ -217,6 +215,8 @@ function receivedMessage(event) {
       case 'kitten':
         sendKittenMessage(senderID);
         break;
+      default:
+        sendMessageToWit(senderID, event);
     }
   } else if (messageAttachments) {
     sendTextMessage(senderID, "AutoBot doesn't like attachments :-/");
@@ -271,7 +271,7 @@ function receivedPostback(event) {
 
   // When a postback is called, we'll send a message back to the sender to
   // let them know it was successful
-  sendTextMessage(senderID, "Oh, you liked an ad, that's nice! <3");
+  sendTextMessage(senderID, "Oh, you sent a postback! <3");
 }
 
 
@@ -366,50 +366,6 @@ function sendKittenMessage(recipientId) {
   callSendAPI(messageData);
 }
 
-function sendResultsMessage(recipientId, results) {
-
-  sendTextMessage(recipientId, "Hey, I've found " + results.total + " results! :D\nI'll show you the best 5 ads. For more ads, visit http://www.automobile.it");
-  var elements = [];
-
-  for(var i=0;i<5;i++) {
-    elements[i] = {
-      "title": results[i]["title"] + " " + results[i]["price"],
-      "subtitle"  :results[i]["description"],
-      "item_url"  :results[i]["url"],
-      "image_url" :results[i]["pic"],
-      "buttons" : [
-        {
-          "type"  : "web_url",
-          "url"   :results[i]["url"],
-          "title" : "See on a.it"
-        },
-        {
-          "type"    : "postback",
-          "title"   : "I like it!",
-          "payload" : "You liked an ad"
-        }
-      ]
-    };
-  }
-
-  var messageData = {
-    recipient: {
-      id: recipientId
-    },
-    message: {
-      attachment: {
-        type: "template",
-        payload: {
-          template_type: "generic",
-          elements: elements
-        }
-      }
-    }
-  };
-
-  callSendAPI(messageData);
-}
-
 /*
  * Wit.ai bot specific code
  *
@@ -469,111 +425,9 @@ const actions = {
   }) {
     return new Promise(function(resolve, reject) {
       var greetings = firstEntityValue(entities, 'greetings');
-      if (greetings && helloCount <= 2) {
+      if (greetings) {
         context.greetings = "Hello fellow user! Can I help you?";
-        helloCount++;
-      } else if(greetings) {
-        context.greetings = "Don't you think we said \"hello\" too much? ;-)";
       }
-      return resolve(context);
-    });
-  },
-  getResults({context, entities,sessionId}) {
-    return new Promise(function(resolve, reject) {
-
-      if(typeof(sessions[sessionId].vehicles) == "undefined") {
-          return resolve(context);
-      }
-
-      var results = getAutomobileResults(sessionId);
-      const recipientId = sessions[sessionId].fbid;
-
-      if (results.total > 0) {
-          sendResultsMessage(recipientId, results);
-          return resolve(context);
-      } else {
-        // Giving the wheel back to our bot
-        sendTextMessage(recipientId, "I'm sorry, there are no results for your search... :-(");
-        return resolve(context)
-      }
-
-    });
-  },
-  restartSearch({
-      context,
-      entities,
-      sessionId
-  }) {
-    return new Promise(function(resolve, reject) {
-      delete sessions[sessionId].vehicles         ;
-      delete sessions[sessionId].amount_of_money  ;
-      delete sessions[sessionId].automotive_brand ;
-      delete sessions[sessionId].colors           ;
-      delete sessions[sessionId].location         ;
-      delete sessions[sessionId].context["search_completed"];
-      return resolve(context);
-    });
-  },
-  getSearch({
-      context,
-      entities,
-      sessionId
-  }) {
-    return new Promise(function(resolve, reject) {
-
-      var searchObj = {
-        vehicles: false,
-        amount_of_money: false,
-        automotive_brand: false,
-        colors: false,
-        location: false
-      };
-      
-      //console.log("[BOT]", JSON.stringify(sessions[sessionId]));
-
-      if (sessions[sessionId]["vehicles"]) {
-        searchObj.vehicles = sessions[sessionId]["vehicles"];
-      } else {
-        searchObj.vehicles = firstEntityValue(entities, 'vehicles')
-      }
-
-      if (sessions[sessionId]["amount_of_money"]) {
-        searchObj.amount_of_money = sessions[sessionId]["amount_of_money"];
-      } else {
-        searchObj.amount_of_money = firstEntityValue(entities, 'amount_of_money')
-      }
-
-      if (sessions[sessionId]["automotive_brand"]) {
-        searchObj.automotive_brand = sessions[sessionId]["automotive_brand"];
-      } else {
-        searchObj.automotive_brand = firstEntityValue(entities, 'automotive_brand')
-      }
-
-      if (sessions[sessionId]["colors"]) {
-        searchObj.colors = sessions[sessionId]["colors"];
-      } else {
-        searchObj.colors = firstEntityValue(entities, 'colors')
-
-      }
-
-      if (sessions[sessionId]["location"]) {
-        searchObj.location = sessions[sessionId]["location"];
-      } else {
-        searchObj.location = firstEntityValue(entities, 'location')
-      }
-
-      for (var keyName in searchObj) {
-        if (searchObj[keyName] == false || searchObj[keyName] === null || typeof(searchObj[keyName]) == "undefined") {
-          context["missing_" + keyName] = true;
-          return resolve(context);
-        } else {
-          delete context["missing_" + keyName];
-          sessions[sessionId][keyName] = searchObj[keyName];
-        }
-      }
-
-      // console.log("[BOT]", "Hey! We are all set!", JSON.stringify(context), JSON.stringify(searchObj));
-      context.search_completed = true;
       return resolve(context);
     });
   }
@@ -638,106 +492,5 @@ const firstEntityValue = (entities, entity) => {
   }
   return typeof val === 'object' ? val.value : val;
 };
-
-function getAutomobileResults(sessionId) {
-
-  // console.log("[BOT] getAutomobileResults", sessionId, sessions[sessionId]);
-
-    var results = {};
-  // build query
-  var qs = {
-    "categoryId": getCategoryValue(sessions[sessionId].vehicles),
-    "locationId": getLocationValue(sessions[sessionId].location),
-    "maxPrice" : parseInt(sessions[sessionId].amount_of_money),
-    "pictureRequired":1
-  }
-
-  if(sessions[sessionId].vehicles == "car") {
-    qs["attr[attr_m_cc]"] = getCarColorValue(sessions[sessionId].colors);
-  } else {
-    qs["attr[attr_moto_colors_i]"] = getMotorbikeColorValue(sessions[sessionId].colors);
-  }
-
-  if(sessions[sessionId].vehicles == "car") {
-    qs["attr[attr_m_make_model_l1]"] = getBrandValue(sessions[sessionId].automotive_brand);
-  } else {
-    qs["attr[attr_moto_make_model]"] = getBrandValue(sessions[sessionId].automotive_brand);
-  }
-
-  var requestUrl = "https://" + process.env.USER +":"+ process.env.PASS + "@rest.motors.kijiji.it/columbus-api/ads.json?&sortType=PRICE_DESCENDING&" + querystring.stringify(qs);
-
-  var res = sync('GET', requestUrl);
-  var json = JSON.parse(res.getBody());
-  results.total = json["{http://www.ebayclassifiedsgroup.com/schema/ad/v1}ads"]["value"]["paging"]["numFound"];
-
-  if(results.total == 0) {
-    return results;
-  }
-
-  var ads = json["{http://www.ebayclassifiedsgroup.com/schema/ad/v1}ads"]["value"]["ad"];
-
-  // we'll show only 5 ads to the user...
-  for(var i=0;i < 5; i++) {
-    results[i] = {};
-    results[i].title       = ads[i]["title"]["value"];
-    results[i].description = ads[i]["description"]["value"];
-    results[i].price       = ads[i]["price"]["amount"]["value"] + "€";
-    results[i].url         = "http://www.automobile.it/post/" + ads[i]["id"] + "?utm_source=autobot";
-    results[i].pic         = ads[i]["pictures"]["picture"][0]["link"][2]["href"];
-  }
-
-  return results;
-
-}
-
-function getCategoryValue(categoryName) {
-  const categories = {
-    "car": "352387072",
-    "motorbike": "352452608"
-  };
-
-  return categories[categoryName];
-}
-
-function getCarColorValue(colorName) {
-  const colors = {
-    "red": "9",
-    "blue": "4",
-    "yellow": "5"
-  };
-
-  return colors[colorName];
-}
-
-function getMotorbikeColorValue(colorName) {
-
-  const colors = {
-    "red": "11",
-    "blue": "5",
-    "yellow": "6"
-  };
-
-  return colors[colorName];
-}
-
-function getLocationValue(locationName) {
-  const locations = {
-    "milan": "134301952",
-    "rome": "100819200"
-  };
-
-  return locations[locationName];
-}
-
-function getBrandValue(brandName) {
-  const brands = {
-    "fiat": "201326592",
-    "ferrari": "184549376",
-    "honda" :"318767104",
-    "ducati":"201326592"
-  }
-
-  return brands[brandName];
-}
 
 module.exports = app;
