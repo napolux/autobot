@@ -1,5 +1,8 @@
 {
   "name": "napobot",
+  "engines": {
+    "node": ">=6.0.0"
+  },
   "version": "0.0.1",
   "description": "NapoBot Server App",
   "main": "index.js",
