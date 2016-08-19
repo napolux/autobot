@@ -11,7 +11,6 @@ const
     express = require('express'),
     https = require('https'),
     request = require('request'),
-    mongoose = require('mongoose'),
     _ = require('underscore'),
     _s = require("underscore.string"),
     Wit = require('node-wit').Wit,
