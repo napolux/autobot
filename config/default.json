@@ -2,5 +2,5 @@
     "appSecret": "",
     "pageAccessToken": "",
     "validationToken": "",
-    "serverURL": "https://example.com"
+    "serverURL": ""
 }
