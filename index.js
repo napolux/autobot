@@ -1,11 +1,4 @@
-/*
- * Copyright 2016-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
+
 /* jshint node: true, devel: true */
 'use strict';
 
@@ -17,6 +10,7 @@ const
     https = require('https'),
     request = require('request');
 
+// express setup
 var app = express();
 
 app.set('port', process.env.PORT || 5000);
@@ -25,29 +19,21 @@ app.use(bodyParser.json({
 }));
 app.use(express.static('public'));
 
-/*
- * Be sure to setup your config values before running this code. You can 
- * set them using environment variables or modifying the config file in /config.
- *
- */
 
-// App Secret can be retrieved from the App Dashboard
+// Configuration
 const APP_SECRET = (process.env.MESSENGER_APP_SECRET) ?
     process.env.MESSENGER_APP_SECRET :
     config.get('appSecret');
 
-// Arbitrary value used to validate a webhook
 const VALIDATION_TOKEN = (process.env.MESSENGER_VALIDATION_TOKEN) ?
     (process.env.MESSENGER_VALIDATION_TOKEN) :
     config.get('validationToken');
 
-// Generate a page access token for your page from the App Dashboard
 const PAGE_ACCESS_TOKEN = (process.env.MESSENGER_PAGE_ACCESS_TOKEN) ?
     (process.env.MESSENGER_PAGE_ACCESS_TOKEN) :
     config.get('pageAccessToken');
 
-// URL where the app is running (include protocol). Used to point to scripts and 
-// assets located at this address. 
+// This is for assets.
 const SERVER_URL = (process.env.SERVER_URL) ?
     (process.env.SERVER_URL) :
     config.get('serverURL');
@@ -58,7 +44,7 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
 }
 
 /*
- * Use your own validation token. Check that the token used in the Webhook 
+ * Use your own validation token. Check that the token used in the webhook
  * setup is the same token used here.
  *
  */
@@ -112,10 +98,7 @@ app.post('/webhook', function(req, res) {
             });
         });
 
-        // Assume all went well.
-        //
-        // You must send back a 200, within 20 seconds, to let us know you've 
-        // successfully received the callback. Otherwise, the request will time out.
+        // Sending 200 to facebook as ACK ;)
         res.sendStatus(200);
     }
 });
