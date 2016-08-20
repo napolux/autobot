@@ -242,7 +242,6 @@ function receivedMessage(event) {
                 sendGifMessage(senderID);
                 break;
             default:
-                sendReadReceipt(senderID);
                 sendTextMessage(senderID, messageText);
         }
     } else if (messageAttachments) {
