@@ -218,7 +218,12 @@ function receivedMessage(event) {
     var messageAttachments = message.attachments;
     var quickReply = message.quick_reply;
 
-   if (quickReply) {
+    if (isEcho) {
+        // Just logging message echoes to console
+        console.log("Received echo for message %s and app %d with metadata %s",
+            messageId, appId, metadata);
+        return;
+    } else if (quickReply) {
         var quickReplyPayload = quickReply.payload;
         console.log("Quick reply for message %s with payload %s",
             messageId, quickReplyPayload);
