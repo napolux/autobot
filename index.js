@@ -45,7 +45,12 @@ const SERVER_URL = (process.env.SERVER_URL) ?
     (process.env.SERVER_URL) :
     config.get('serverURL');
 
-if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
+// Wit.ai token
+const WIT_ACCESS_TOKEN = (process.env.WIT_ACCESS_TOKEN) ?
+    (process.env.WIT_ACCESS_TOKEN) :
+    config.get('witAccessToken');
+
+if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL && WIT_ACCESS_TOKEN)) {
     console.error("Missing config values");
     process.exit(1);
 }
