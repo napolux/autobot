@@ -254,7 +254,8 @@ function receivedMessage(event) {
                 sendGifMessage(senderID);
                 break;
             default:
-                sendTextMessage(senderID, messageText);
+              sendMessageToWit(senderID, event);
+              //sendTextMessage(senderID, messageText);
         }
     } else if (messageAttachments) {
         sendTextMessage(senderID, "I don't like attachments");
@@ -409,7 +410,6 @@ function sendReadReceipt(recipientId) {
     callSendAPI(messageData);
 }
 
-
 /*
  * Wit.ai bot specific code
  *
@@ -417,6 +417,38 @@ function sendReadReceipt(recipientId) {
  * Each session has an entry:
  * sessionId -> {fbid: facebookUserId, context: sessionState}
  */
+
+function sendMessageToWit(recipientId, event) {
+
+  const sessionId = findOrCreateSession(recipientId);
+  const {
+      text,
+      attachments
+  } = event.message;
+
+  // Let's forward the message to the Wit.ai Bot Engine
+  // This will run all actions until our bot has nothing left to do
+  wit.runActions(
+      sessionId, // the user's current session
+      text, // the user's message
+      sessions[sessionId].context // the user's current session state
+  ).then((context) => {
+        console.log('Running actions...');
+        // Our bot did everything it has to do.
+        // Now it's waiting for further messages to proceed.
+        console.log('Waiting for next user messages');
+
+        // Updating the user's current session state
+        sessions[sessionId].context = context;
+      })
+      .catch((err) => {
+        var reply = "I can't understand you... :-(";
+        sendTextMessage(recipientId, reply);
+        console.error('Oops! Got an error from Wit: ', err.stack || err);
+      })
+
+}
+
 const sessions = {};
 
 const findOrCreateSession = (fbid) => {
@@ -468,6 +500,7 @@ getHello({
     entities
 }) {
     return new Promise(function(resolve, reject) {
+        context.greetings = "Hello fellow user! Can I help you?";
         return resolve(context);
     });
 }
