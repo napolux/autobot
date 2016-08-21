@@ -1,4 +1,6 @@
-
+/**
+ * @author: Francesco Napoletano <napolux@gmail.com>
+ **/
 /* jshint node: true, devel: true */
 'use strict';
 
@@ -8,7 +10,12 @@ const
     crypto = require('crypto'),
     express = require('express'),
     https = require('https'),
-    request = require('request');
+    request = require('request'),
+    _ = require('underscore'),
+    Wit = require('node-wit').Wit,
+    log = require('node-wit').log,
+    sync = require('sync-request'),
+    querystring = require('querystring');
 
 // express setup
 var app = express();
@@ -397,6 +404,184 @@ function sendReadReceipt(recipientId) {
     callSendAPI(messageData);
 }
 
+
+/*
+ * Wit.ai bot specific code
+ *
+ * This will contain all user sessions.
+ * Each session has an entry:
+ * sessionId -> {fbid: facebookUserId, context: sessionState}
+ */
+const sessions = {};
+
+const findOrCreateSession = (fbid) => {
+    let sessionId;
+    // Let's see if we already have a session for the user fbid
+    Object.keys(sessions).forEach(k => {
+        if (sessions[k].fbid === fbid) {
+        // Yep, got it!
+        sessionId = k;
+    }
+});
+if (!sessionId) {
+    // No session found for user fbid, let's create a new one
+    sessionId = new Date().toISOString();
+    sessions[sessionId] = {
+        fbid: fbid,
+        context: {}
+    };
+}
+return sessionId;
+};
+
+// Our bot actions
+const actions = {
+    send({
+        sessionId
+    }, {
+        text
+    }) {
+    // Our bot has something to say!
+    // Let's retrieve the Facebook user whose session belongs to
+    const recipientId = sessions[sessionId].fbid;
+    if (recipientId) {
+        // Yay, we found our recipient!
+        // Let's forward our bot response to her.
+        // We return a promise to let our bot know when we're done sending
+        return new Promise(function(resolve, reject) {
+            sendTextMessage(recipientId, text);
+            return resolve();
+        });
+    } else {
+        console.error('Oops! Couldn\'t find user for session:', sessionId);
+        // Giving the wheel back to our bot
+        return Promise.resolve()
+    }
+},
+getHello({
+    context,
+    entities
+}) {
+    return new Promise(function(resolve, reject) {
+        var greetings = firstEntityValue(entities, 'greetings');
+        if (greetings && helloCount <= 2) {
+            context.greetings = "Hello fellow user! Can I help you?";
+            helloCount++;
+        } else if(greetings) {
+            context.greetings = "Don't you think we said \"hello\" too much? ;-)";
+        }
+        return resolve(context);
+    });
+},
+getResults({context, entities,sessionId}) {
+    return new Promise(function(resolve, reject) {
+
+        if(typeof(sessions[sessionId].vehicles) == "undefined") {
+            return resolve(context);
+        }
+
+        var results = getAutomobileResults(sessionId);
+        const recipientId = sessions[sessionId].fbid;
+
+        if (results.total > 0) {
+            sendResultsMessage(recipientId, results);
+            return resolve(context);
+        } else {
+            // Giving the wheel back to our bot
+            sendTextMessage(recipientId, "I'm sorry, there are no results for your search... :-(");
+            return resolve(context)
+        }
+
+    });
+},
+restartSearch({
+    context,
+    entities,
+    sessionId
+}) {
+    return new Promise(function(resolve, reject) {
+        delete sessions[sessionId].vehicles         ;
+        delete sessions[sessionId].amount_of_money  ;
+        delete sessions[sessionId].automotive_brand ;
+        delete sessions[sessionId].colors           ;
+        delete sessions[sessionId].location         ;
+        delete sessions[sessionId].context["search_completed"];
+        return resolve(context);
+    });
+},
+getSearch({
+    context,
+    entities,
+    sessionId
+}) {
+    return new Promise(function(resolve, reject) {
+
+        var searchObj = {
+            vehicles: false,
+            amount_of_money: false,
+            automotive_brand: false,
+            colors: false,
+            location: false
+        };
+
+        //console.log("[BOT]", JSON.stringify(sessions[sessionId]));
+
+        if (sessions[sessionId]["vehicles"]) {
+            searchObj.vehicles = sessions[sessionId]["vehicles"];
+        } else {
+            searchObj.vehicles = firstEntityValue(entities, 'vehicles')
+        }
+
+        if (sessions[sessionId]["amount_of_money"]) {
+            searchObj.amount_of_money = sessions[sessionId]["amount_of_money"];
+        } else {
+            searchObj.amount_of_money = firstEntityValue(entities, 'amount_of_money')
+        }
+
+        if (sessions[sessionId]["automotive_brand"]) {
+            searchObj.automotive_brand = sessions[sessionId]["automotive_brand"];
+        } else {
+            searchObj.automotive_brand = firstEntityValue(entities, 'automotive_brand')
+        }
+
+        if (sessions[sessionId]["colors"]) {
+            searchObj.colors = sessions[sessionId]["colors"];
+        } else {
+            searchObj.colors = firstEntityValue(entities, 'colors')
+
+        }
+
+        if (sessions[sessionId]["location"]) {
+            searchObj.location = sessions[sessionId]["location"];
+        } else {
+            searchObj.location = firstEntityValue(entities, 'location')
+        }
+
+        for (var keyName in searchObj) {
+            if (searchObj[keyName] == false || searchObj[keyName] === null || typeof(searchObj[keyName]) == "undefined") {
+                context["missing_" + keyName] = true;
+                return resolve(context);
+            } else {
+                delete context["missing_" + keyName];
+                sessions[sessionId][keyName] = searchObj[keyName];
+            }
+        }
+
+        // console.log("[BOT]", "Hey! We are all set!", JSON.stringify(context), JSON.stringify(searchObj));
+        context.search_completed = true;
+        return resolve(context);
+    });
+}
+// You should implement your custom actions here
+// See https://wit.ai/docs/quickstart
+};
+
+// Setting up our bot
+const wit = new Wit({
+    accessToken: WIT_ACCESS_TOKEN,
+    actions,
+    logger: new log.Logger(log.INFO)
+});
 
 /*
  * Call the Send API. The message data goes in the body. If successful, we'll 
