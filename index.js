@@ -468,35 +468,12 @@ getHello({
     entities
 }) {
     return new Promise(function(resolve, reject) {
-        var greetings = firstEntityValue(entities, 'greetings');
-        if (greetings && helloCount <= 2) {
-            context.greetings = "Hello fellow user! Can I help you?";
-            helloCount++;
-        } else if(greetings) {
-            context.greetings = "Don't you think we said \"hello\" too much? ;-)";
-        }
         return resolve(context);
     });
 },
 getResults({context, entities,sessionId}) {
     return new Promise(function(resolve, reject) {
-
-        if(typeof(sessions[sessionId].vehicles) == "undefined") {
-            return resolve(context);
-        }
-
-        var results = getAutomobileResults(sessionId);
-        const recipientId = sessions[sessionId].fbid;
-
-        if (results.total > 0) {
-            sendResultsMessage(recipientId, results);
-            return resolve(context);
-        } else {
-            // Giving the wheel back to our bot
-            sendTextMessage(recipientId, "I'm sorry, there are no results for your search... :-(");
-            return resolve(context)
-        }
-
+        return resolve(context)
     });
 },
 restartSearch({
@@ -505,12 +482,6 @@ restartSearch({
     sessionId
 }) {
     return new Promise(function(resolve, reject) {
-        delete sessions[sessionId].vehicles         ;
-        delete sessions[sessionId].amount_of_money  ;
-        delete sessions[sessionId].automotive_brand ;
-        delete sessions[sessionId].colors           ;
-        delete sessions[sessionId].location         ;
-        delete sessions[sessionId].context["search_completed"];
         return resolve(context);
     });
 },
@@ -520,60 +491,6 @@ getSearch({
     sessionId
 }) {
     return new Promise(function(resolve, reject) {
-
-        var searchObj = {
-            vehicles: false,
-            amount_of_money: false,
-            automotive_brand: false,
-            colors: false,
-            location: false
-        };
-
-        //console.log("[BOT]", JSON.stringify(sessions[sessionId]));
-
-        if (sessions[sessionId]["vehicles"]) {
-            searchObj.vehicles = sessions[sessionId]["vehicles"];
-        } else {
-            searchObj.vehicles = firstEntityValue(entities, 'vehicles')
-        }
-
-        if (sessions[sessionId]["amount_of_money"]) {
-            searchObj.amount_of_money = sessions[sessionId]["amount_of_money"];
-        } else {
-            searchObj.amount_of_money = firstEntityValue(entities, 'amount_of_money')
-        }
-
-        if (sessions[sessionId]["automotive_brand"]) {
-            searchObj.automotive_brand = sessions[sessionId]["automotive_brand"];
-        } else {
-            searchObj.automotive_brand = firstEntityValue(entities, 'automotive_brand')
-        }
-
-        if (sessions[sessionId]["colors"]) {
-            searchObj.colors = sessions[sessionId]["colors"];
-        } else {
-            searchObj.colors = firstEntityValue(entities, 'colors')
-
-        }
-
-        if (sessions[sessionId]["location"]) {
-            searchObj.location = sessions[sessionId]["location"];
-        } else {
-            searchObj.location = firstEntityValue(entities, 'location')
-        }
-
-        for (var keyName in searchObj) {
-            if (searchObj[keyName] == false || searchObj[keyName] === null || typeof(searchObj[keyName]) == "undefined") {
-                context["missing_" + keyName] = true;
-                return resolve(context);
-            } else {
-                delete context["missing_" + keyName];
-                sessions[sessionId][keyName] = searchObj[keyName];
-            }
-        }
-
-        // console.log("[BOT]", "Hey! We are all set!", JSON.stringify(context), JSON.stringify(searchObj));
-        context.search_completed = true;
         return resolve(context);
     });
 }
