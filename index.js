@@ -470,29 +470,6 @@ getHello({
     return new Promise(function(resolve, reject) {
         return resolve(context);
     });
-},
-getResults({context, entities,sessionId}) {
-    return new Promise(function(resolve, reject) {
-        return resolve(context)
-    });
-},
-restartSearch({
-    context,
-    entities,
-    sessionId
-}) {
-    return new Promise(function(resolve, reject) {
-        return resolve(context);
-    });
-},
-getSearch({
-    context,
-    entities,
-    sessionId
-}) {
-    return new Promise(function(resolve, reject) {
-        return resolve(context);
-    });
 }
 // You should implement your custom actions here
 // See https://wit.ai/docs/quickstart
